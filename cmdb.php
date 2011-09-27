@@ -104,6 +104,54 @@ require_once("database.php");
             return $this->factory();
         }
         /**
+         * @name __call 
+         * @abstract "emula" um método de acordo com os atributos da classe
+         * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+         * @since  27/09/2011 17:51:00
+         * @subpackage cmdb
+         * @version 1.0
+         * @param $p
+         * @param $v
+         * @access public
+         */
+        public function __call($metodo,$argumentos)
+        {
+            /*pr($metodo);
+            pr($argumentos);*/
+			if(method_exists($this,$metodo))
+			{
+				return call_user_func_array(array($this, $metodo), $argumentos);
+			}
+			elseif(substr_count($metodo,"_")>0)
+            {
+				$metodo=explode("_",$metodo);
+				$attr=$metodo[0];
+				$metodo=$metodo[1];
+				//array_unshift($argumentos,$attr);
+				switch($metodo)
+				{
+					case "eq":
+						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
+						$this->__set_data_query($attr."='".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
+						break;
+					case "gt":
+						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
+						$this->__set_data_query($attr.">'".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
+						break;
+				}
+				return $this->factory();
+			}
+			elseif(in_array($metodo,$this->campos))
+			{
+				array_unshift($argumentos,$metodo);
+				return call_user_func_array(array($this, "set"), $argumentos);
+			}
+			else
+			{
+				return $this->factory();
+			}
+        }
+        /**
          * @name factory
          * @abstract retorna um objeto da classe clonado ou NÃO dependendo do parametro passado
          * 
@@ -559,11 +607,11 @@ require_once("database.php");
             }
             else
             {
-            	pr($stmt->errorInfo());
                 $this->result=false;
             }
             if($d)
             {
+            	pr($stmt->errorInfo());
 				print_r($query);
 				print_r($stmt);
 			}
@@ -635,5 +683,10 @@ require_once("database.php");
             }
             return $tmp;
         }
-		
+        
+        public function eq($attr,$value,$sep="AND")
+        {
+			$value=empty($value)?$this->$attr:$value;
+            return $this->__set_data_query($attr."='".$value."'","where",$sep);
+        }
 	} // fim da classe cmdb

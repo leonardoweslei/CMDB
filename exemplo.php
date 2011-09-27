@@ -120,11 +120,35 @@ class teste extends cmdb
 	}		
 }
 $teste= new teste();
+
 //selecionando todos os dados da tabela
 $teste->select();
+
 //retornando o resultado do select em um array
 $dados=$teste->get_array();
-//retornando o resultado do select em um array de objetos "teste"
-$dados=$teste->get_object();
 pr($dados);
+
+//retornando o resultado do select em um array de objetos "teste"
+//$dados=$teste->get_object();
+
+//setando atributos referentes aos campos da tabela
+/*$teste=$teste
+->codigo('2')
+->nome('John')
+->sobrenome('connor');*/
+
+//inserindo no banco de dados
+//$teste->insert();
+
+//verificando se ouve erros
+//pr($teste->error?"Ouve erro!":"Ok!");
+
+
+//selecionando todos os dados da tabela com codigo igual a 1
+$teste->codigo_gt(1)->select();
+
+//retornando o resultado do select em um array
+$dados=$teste->get_array();
+pr($dados);
+pr($teste);
 ?>
