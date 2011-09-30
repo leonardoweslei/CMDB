@@ -132,14 +132,13 @@ require_once("database.php");
 				{
 					case "eq":
 						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
-						$this->__set_data_query($attr."='".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
+						return $this->__set_data_query($attr."='".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
 						break;
 					case "gt":
 						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
-						$this->__set_data_query($attr.">'".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
+						return $this->__set_data_query($attr.">'".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
 						break;
 				}
-				return $this->factory();
 			}
 			elseif(in_array($metodo,$this->campos))
 			{
@@ -165,10 +164,10 @@ require_once("database.php");
          */
         public function factory($clear=false)
         {
-            $tmp=new $this->tabela();
+            //$tmp=new $this->tabela();
             if(empty($clear))
             {
-                $tmp->query=$this->query;
+                /*$tmp->query=$this->query;
                 $tmp->last_query=$this->last_query;
                 $tmp->result=$this->result;
                 $tmp->error=$this->error;
@@ -176,17 +175,24 @@ require_once("database.php");
                 {
                     $tmp->$c=$this->$c;
                 }
-				return $tmp;
+				return $tmp;*/
+				return $this;
             }
             else if($clear==2)
             {
-                foreach($this->campos as $c)
+                /*foreach($this->campos as $c)
                 {
                     $tmp->$c=$this->$c;
+                }*/
+                foreach(get_class_vars(__CLASS__) as $c)
+                {
+                    $this->$c=in_array($c,$this->campos)?$this->$c:false;
                 }
-				return $tmp;
+				//return $tmp;
+				return $this;
             }
-            return $tmp;
+            //return $tmp;
+            return $this;
         }
         /**
          * @name get_values
@@ -454,12 +460,11 @@ require_once("database.php");
             $fields=$this->get_fields_query();
             $fields=empty($table_fields)?$fields:$this->get_fields();
             $query='SELECT '.(empty($fields)?'*':implode(",",$fields)).' FROM '.(empty($this->query['table'])?$this->tabela:implode(" ",$this->query['table']));
-            $query.=empty($this->query['where'])?'':' WHERE '.implode("",$this->query['where']);
-            $query.=empty($this->query['group'])?'':' GROUP BY '.implode(", ",$this->query['group']);
-            $query.=empty($this->query['order'])?'':' ORDER BY '.implode(", ",$this->query['order']);
-            $query.=empty($this->query['limit'])?'':' LIMIT '.$this->query['limit'];
-            $this->exec($query,null,$d);
-            return $this->__set_data_query($query,"query");
+			$query.=empty($this->query['where'])?'':' WHERE '.implode("",$this->query['where']);
+			$query.=empty($this->query['group'])?'':' GROUP BY '.implode(", ",$this->query['group']);
+			$query.=empty($this->query['order'])?'':' ORDER BY '.implode(", ",$this->query['order']);
+			$query.=empty($this->query['limit'])?'':' LIMIT '.$this->query['limit'];
+            return $this->exec($query,null,$d);
         }
         /**
          * @name update
@@ -495,8 +500,7 @@ require_once("database.php");
             $query.=empty($this->query['group'])?'':' GROUP BY '.implode(", ",$this->query['group']);
             $query.=empty($this->query['order'])?'':' ORDER BY '.implode(", ",$this->query['order']);
             $query.=empty($this->query['limit'])?'':' LIMIT '.$this->query['limit'];
-            $this->exec($query,$data,$d);
-            return $this->__set_data_query($query,"query");
+            return $this->exec($query,$data,$d);
         }
         /**
          * @name replace
@@ -524,8 +528,7 @@ require_once("database.php");
                 $data[":".$k]=$values[$k];
             }
             $query='REPLACE INTO '.$this->tabela.'('.implode(", ",array_keys($fields)).') VALUES('.implode(", ",array_keys($data)).")";
-            $this->exec($query,$data);
-            return $this->__set_data_query($query,"query");
+            return $this->exec($query,$data);
         }
         /**
          * @name delete
@@ -545,8 +548,7 @@ require_once("database.php");
             $query.=empty($this->query['group'])?'':' GROUP BY '.implode(", ",$this->query['group']);
             $query.=empty($this->query['order'])?'':' ORDER BY '.implode(", ",$this->query['order']);
             $query.=empty($this->query['limit'])?'':' LIMIT '.$this->query['limit'];
-            $this->exec($query);
-            return $this->__set_data_query($query,"query");
+            return $this->exec($query);
         }
         /**
          * @name insert
@@ -575,8 +577,7 @@ require_once("database.php");
             }
             $query='INSERT INTO '.$this->tabela.'('.implode(", ",array_keys($fields)).') VALUES('.implode(", ",array_keys($data)).")";
             //$query2='INSERT INTO '.$this->tabela.'('.implode(",",array_keys($fields)).') VALUES('.implode(",",$data).")";
-            $this->exec($query,$data,$d);
-            return $this->__set_data_query($query,"query");
+            return $this->exec($query,$data,$d);
         }
         /**
          * @name exec
@@ -616,6 +617,7 @@ require_once("database.php");
 				print_r($stmt);
 			}
             $this->last_query=$query;
+            return $this->__set_data_query($query,"query");
         }
         /**
          * @name get_array
