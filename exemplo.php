@@ -145,10 +145,13 @@ pr($dados);
 
 
 //selecionando todos os dados da tabela com codigo igual a 1
-$teste->codigo_gt(1)->select();
-
+$dados=$teste
+->codigo_gt(1)
+//executando consulta
+->select()
 //retornando o resultado do select em um array
-$dados=$teste->get_array();
+->get_array();
+
 pr($dados);
 pr($teste);
 ?>
