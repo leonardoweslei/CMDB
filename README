@@ -1,1 +1,22 @@
 Classe para manipular banco de dados MySQL usando Interface fluente e PDO
+Tratamento de possiveis métodos para atributos/campos:
+*iqual a...............(atributo+"_"+eq)
+*não igual a...........(atributo+"_"+ne)
+*maior que.............(atributo+"_"+gt)
+*maior ou igual que....(atributo+"_"+ge)
+*menor que.............(atributo+"_"+lt)
+*menor ou igual que....(atributo+"_"+le)
+*está entre............(atributo+"_"+between)
+*não está entre........(atributo+"_"+nbetween)
+*está em...............(atributo+"_"+in)
+*não está em...........(atributo+"_"+nin)
+*é nulo................(atributo+"_"+isnull)
+*não é nulo............(atributo+"_"+isnotnull)
+*é semelhante a........(atributo+"_"+like)
+*não é semelhante a....(atributo+"_"+nlike)
+Métodos do mysql
+*select
+*insert
+*replace
+*delete
+*update
