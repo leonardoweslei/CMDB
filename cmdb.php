@@ -134,16 +134,80 @@ require_once("database.php");
 						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
 						return $this->__set_data_query($attr."='".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
 						break;
+					case "ne":
+						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
+						return $this->__set_data_query($attr."!='".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
+						break;
 					case "gt":
 						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
 						return $this->__set_data_query($attr.">'".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
 						break;
+					case "ge":
+						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
+						return $this->__set_data_query($attr.">='".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
+						break;
+					case "lt":
+						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
+						return $this->__set_data_query($attr."<'".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
+						break;
+					case "le":
+						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
+						return $this->__set_data_query($attr."<='".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
+						break;
+					case "between":
+						$value1=$argumentos[0];
+						$value2=$argumentos[1];
+						return $this->__set_data_query($attr." BETWEEN '".$value1."' AND '".$value2."'","where",(isset($argumentos[2])?$argumentos[2]:false));
+						break;
+					case "nbetween":
+						$value1=$argumentos[0];
+						$value2=$argumentos[1];
+						return $this->__set_data_query($attr." NOT BETWEEN '".$value1."' AND '".$value2."'","where",(isset($argumentos[2])?$argumentos[2]:false));
+						break;
+					case "in":
+						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
+						$value=is_array($value)?$value:array($value);
+						return $this->__set_data_query($attr." IN('".implode("','",$value)."')","where",(isset($argumentos[1])?$argumentos[1]:false));
+						break;
+					case "nin":
+						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
+						$value=is_array($value)?$value:array($value);
+						return $this->__set_data_query($attr." NOT IN('".implode("','",$value)."')","where",(isset($argumentos[1])?$argumentos[1]:false));
+						break;
+						break;
+					case "null":
+					case "isnull":
+					case "is_null":
+						return $this->__set_data_query($attr." IS NULL","where",(isset($argumentos[0])?$argumentos[0]:false));
+						break;
+					case "nnull":
+					case "isnotnull":
+						return $this->__set_data_query($attr." IS NOT NULL","where",(isset($argumentos[0])?$argumentos[0]:false));
+						break;
+					case "like":
+						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
+						return $this->__set_data_query($attr." like '".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
+						break;
+					case "nlike":
+					case "notlike":
+					case "not_like":
+						$value=(count($argumentos)==0 || !$argumentos[0])?$this->$attr:$argumentos[0];
+						return $this->__set_data_query($attr." like '".$value."'","where",(isset($argumentos[1])?$argumentos[1]:false));
+						break;
+					default:
+						return $this->factory();
+						break;
 				}
 			}
-			elseif(in_array($metodo,$this->campos))
+			elseif(in_array($metodo,$this->campos) && count($argumentos)>1)
 			{
 				array_unshift($argumentos,$metodo);
 				return call_user_func_array(array($this, "set"), $argumentos);
+			}
+			elseif(in_array($metodo,$this->campos) && count($argumentos)==0)
+			{
+				array_unshift($argumentos,$metodo);
+				return call_user_func_array(array($this, "get"), $argumentos);
 			}
 			else
 			{
