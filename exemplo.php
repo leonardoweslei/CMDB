@@ -33,6 +33,7 @@ class teste extends cmdb
 {
 	/* atributos privados que irão representar os campos da tabela */
 	private $codigo=false;
+	private $dependencia=false;
 	private $nome=false;
 	private $sobrenome=false;
 	/**
@@ -41,83 +42,40 @@ class teste extends cmdb
 	 * -melhor legibilidade(minha opinião)
 	 * -caso extenda a classe ou acrescente métodos não irão influenciar na comunicação com a cmdb
 	 */
-	public $campos=array("codigo","nome","sobrenome");
-    public $tabela="teste";
-    
-    /**
-	 * @name __construct
-     * @abstract Construtor: simplesmente seta valores em atributos
-     */
-    function __construct
-	(
-		$codigo=false,
-		$nome=false,
-		$sobrenome=false
-	)
-	{
-			$this->__set('codigo',$codigo);
-			$this->__set('nome',$nome);
-			$this->__set('sobrenome',$sobrenome);
-	}
-	/**
-	 * @name __set
-	 * @abstract altera o valor de um atributo da classe teste
-	 * caso a tabela tenha relacionamentos
-	 * e queira implementar um tratamento quando for setar valores para os atributos
-	 */
-	public function __set($p,$v)
-	{
-		$this->$p=$v;
-	}
-	/**
-	 * @name __get 
-	 * @abstract retorna o valor de um atributo da classe
-	 */
-	public function __get($p)
+	public $campos=array("codigo","dependencia","nome","sobrenome");
+	public $map=array("dependencia"=>array("attr"=>"dependencia","table"=>"teste","fk"=>"codigo"));
+	public $tabela="teste";
+        /**
+         * @name __get
+         * @abstract retorna o valor de um atributo da classe
+         * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+         * @since  08/02/2011 08:57:00
+         * @final  09/03/2011 16:53:59
+         * @subpackage cmdb
+         * @version 1.0
+         * @param $p
+         * @access public
+         */
+        public function __get($p)
 	{
 		return isset($this->$p)?$this->$p:false;
 	}
-	/**
-	 * @name get_array
-	 * @abstract retorna o resultado da consulta executada pelo metodo exec da classe cmdb em um array
-	 */
-	public function get_array($persistencia=false)
+        /**
+         * @name __set 
+         * @abstract altera o valor de um atributo da classe
+         * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+         * @since  08/02/2011 08:57:00
+         * @final  09/03/2011 16:53:59
+         * @subpackage cmdb
+         * @version 1.0
+         * @param $p
+         * @param $v
+         * @access public
+         */
+        public function __set($p,$v)
 	{
-		$tmp=array();
-		foreach($this->result as $un)
-		{
-			$temp=$un;
-			if($persistencia)
-			{
-				/*
-				 * para implementar um tratamento quando for retornar valores relativos à relacionamento, como uma persistência
-				 */
-			}
-			$tmp[]=$temp;
-		}
-		return $tmp;
+            $this->$p=$this->real_value($p,$v);
 	}
-	/**
-	 * @name get_object
-	 * @abstract retorna o resultado da consulta executada pelo metodo exec da classe cmdb em um array de objetos
-	 */
-	public function get_object($persistencia=false)
-	{
-		$tmp=array();
-		foreach($this->result as $un)
-		{
-			$temp=new teste();
-			$temp->extract($un);
-			if($persistencia)
-			{
-				/*
-				 * para implementar um tratamento quando for retornar valores relativos à relacionamento, como uma persistência
-				 */
-			}
-			$tmp[]=$temp;
-		}
-		return $tmp;
-	}		
 }
 $teste= new teste();
 
@@ -125,8 +83,19 @@ $teste= new teste();
 $teste->select();
 
 //retornando o resultado do select em um array
-$dados=$teste->get_array();
+$dados=$teste->get_array(1);
+//$dados=$teste->get_object(1);
 pr($dados);
+
+/*$raquel=new teste();
+$raquel->codigo_eq(4)->select()->set_result();
+$cesar=new teste();
+$cesar->codigo_eq(2)->select()->set_result()->set("nome","Cesar")->set("sobrenome","Diniz")->codigo_eq(2)->update();
+$leo=new teste();
+$leo->codigo_eq(1)->select()->set_result()->set("dependencia",$raquel)->codigo_eq(1)->update();
+$leo2=new teste();
+$leo2->codigo_eq(5)->select()->set_result()->set("dependencia",$cesar)->codigo_eq(5)->update();*/
+//pr($leo);
 
 //retornando o resultado do select em um array de objetos "teste"
 //$dados=$teste->get_object();
