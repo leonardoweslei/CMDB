@@ -21,6 +21,12 @@ require_once("database.php");
          */
         public $campos=array();
         /**
+         * A variável $map guarda os dados dos relacionamentos dos atributos
+         *
+         * @var public array $map
+         */
+        public $map=array();
+        /**
          * A variável $tabela guarda o nome da tabela/classe para criar objetos
          *
          * @var public array $tabela
@@ -62,6 +68,21 @@ require_once("database.php");
         public $error=false;
         /*** Metodos ***/
         /**
+         * @name __construct
+         * @abstract Construtor: simplesmente seta valores em atributos
+         */
+        function __construct()
+        {
+                $args = func_get_args();
+                while(
+                      list( , $arg) = each($args)
+                    )
+                {
+                    list(, $campo)=each($this->campos);
+                    $this->__set($campo,$arg);
+                }
+        }
+        /**
          * @name __set 
          * @abstract altera o valor de um atributo da classe
          * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
@@ -87,6 +108,21 @@ require_once("database.php");
          */
         abstract public function __get($p);
         /**
+         * @name get
+         * @abstract retorna o valor de um atributo da classe
+         * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+         * @since  08/02/2011 08:57:00
+         * @final  09/03/2011 16:53:59
+         * @subpackage cmdb
+         * @version 1.0
+         * @param $p
+         * @access public
+         */
+        public function get($p)
+	{
+		return isset($this->$p)?$this->$p:false;
+	}
+        /**
          * @name set 
          * @abstract altera o valor de um atributo da classe e retorna um clone do objeto
          * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
@@ -99,9 +135,77 @@ require_once("database.php");
          * @access public
          */
         public function set($p,$v)
-        {
-            $this->__set($p,$v);
+	{
+            $this->$p=$this->real_value($p,$v);
             return $this->factory();
+	}
+        /**
+         * @name real_value
+         * @abstract altera o valor de um atributo da classe e retorna um clone do objeto
+         * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+         * @since  08/02/2011 08:57:00
+         * @final  09/03/2011 16:53:59
+         * @subpackage cmdb
+         * @version 1.0
+         * @param $p
+         * @param $v
+         * @access public
+         */
+        public function real_value($p,$v)
+        {
+            $attr_map=false;
+            if(isset($this->map[$p]))
+            {
+                $attr_map=$this->map[$p];
+            }
+            elseif(array_search($p,$this->map)!==false)
+            {
+                $k=array_search($p,$this->map);
+                $attr_map=$k['attr']==$p?$k:false;
+            }
+            if(!empty($attr_map))
+            {
+                if(is_object($v) && is_a($v,$attr_map['table']))
+                {
+                    $v=$v->$attr_map['fk'];
+                }
+                elseif(is_array($v) && isset($v[$attr_map['fk']]))
+                {
+                    $v=$v[$attr_map['fk']];
+                }
+                elseif(is_array($v))
+                {
+                    $v=array_shift($v);
+                }
+            }
+            return $v;
+        }
+        /**
+         * @name persistence 
+         * @abstract busca dependencias de chaves estrangeiras de um atributo
+         * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+         * @since  29/11/2011 10:01:00
+         * @subpackage cmdb
+         * @version 1.0
+         * @param $value
+         * @param $class
+         * @param $fk
+         * @param $type
+         * @access public
+         */
+        function persistence($value,$class,$fk,$type="array")
+        {
+            $obj=new $class;
+            $method=$fk."_eq";
+            $obj->$method($value)->select();
+            if($type=="array")
+            {
+                return $obj->get_array(true);
+            }
+            else
+            {
+                return $obj->get_object(true);
+            }
         }
         /**
          * @name __call 
@@ -695,7 +799,23 @@ require_once("database.php");
          * @param bolleam $persistencia
          * @access public
          */
-        abstract public function get_array($persistencia=false);
+        public function get_array($persistencia=false)
+        {
+		$tmp=array();
+		foreach($this->result as $un)
+		{
+			$temp=$un;
+			if($persistencia)
+			{
+				foreach($this->map as $attr=>$data)
+                                {
+                                    $temp[$attr]=$this->persistence($temp[$attr],$data['table'],$data['fk'],"array");
+                                }
+			}
+			$tmp[]=$temp;
+		}
+		return $tmp;
+        }
         /**
          * @name get_object
          * @abstract retorna o resultado da consulta executada pelo metodo exec em um array de objetos
@@ -708,7 +828,28 @@ require_once("database.php");
          * @param bolleam $persistencia
          * @access public
          */
-        abstract public function get_object($persistencia=false);
+        public function get_object($persistencia=false)
+        {
+		$tmp=array();
+		foreach($this->result as $un)
+		{
+			$temp=new $this->tabela();
+			$temp->extract($un);
+			if($persistencia)
+			{
+				foreach($this->map as $attr=>$data)
+                                {
+                                    if(is_int($attr))
+                                    {
+                                        $attr=$data['attr'];
+                                    }
+                                    $temp->$attr=$this->persistence($temp->$attr,$data['table'],$data['fk'],"object");
+                                }
+			}
+			$tmp[]=$temp;
+		}
+		return $tmp;
+        }
         /**
          * @name extract
          * @abstract seta valores do objeto contidos em um array
@@ -726,6 +867,26 @@ require_once("database.php");
             foreach($this->campos as $attr)
             {
                 $this->__set($attr,(isset($values[$attr])?$values[$attr]:false));
+            }
+            return $this->factory();
+        }
+        /**
+         * @name set_result
+         * @abstract seta valores do objeto a partir de um dos resultados da colsulta
+         * 
+         * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+         * @since  29/11/2011 11:41:00
+         * @subpackage cmdb
+         * @version 1.0
+         * @param $num
+         * @access public
+         */
+        public function set_result($num=0)
+        {
+            if(!empty($this->result))
+            {
+                $r=$num<count($this->result)?$this->result[$num]:$this->result[0];
+                $this->extract($r);
             }
             return $this->factory();
         }
@@ -749,10 +910,4 @@ require_once("database.php");
             }
             return $tmp;
         }
-        
-        public function eq($attr,$value,$sep="AND")
-        {
-			$value=empty($value)?$this->$attr:$value;
-            return $this->__set_data_query($attr."='".$value."'","where",$sep);
-        }
-	} // fim da classe cmdb
+    } // fim da classe cmdb
