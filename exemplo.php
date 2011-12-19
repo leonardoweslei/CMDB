@@ -1,7 +1,13 @@
 <?php
+//error_reporting(E_ERROR AND E_WARNING);
 error_reporting(E_ALL);
+function pr($v)
+{
+	echo "<pre>".print_r($v,1)."</pre>";
+}
+require_once("cmdb.php");
 ini_set("display_errors","On");
-$bd_data=array
+$database_params=array
 (
 	'dsn'=>"mysql",
 	'user'=>"root",
@@ -9,11 +15,6 @@ $bd_data=array
 	'host'=>"localhost",
 	'dbname'=>"bd_teste"
 );
-function pr($v)
-{
-	echo "<pre>".print_r($v,1)."</pre>";
-}
-require_once("cmdb.php");
 /*
 $cmdb=new cmdb(); Não irá funcionar
 é necessario implementar uma classe extendida
@@ -42,9 +43,9 @@ class teste extends cmdb
 	 * -melhor legibilidade(minha opinião)
 	 * -caso extenda a classe ou acrescente métodos não irão influenciar na comunicação com a cmdb
 	 */
-	public $campos=array("codigo","dependencia","nome","sobrenome");
+	public $fields=array("codigo","dependencia","nome","sobrenome");
 	public $map=array("dependencia"=>array("attr"=>"dependencia","table"=>"teste","fk"=>"codigo"));
-	public $tabela="teste";
+	public $table="teste";
         /**
          * @name __get
          * @abstract retorna o valor de um atributo da classe
