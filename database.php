@@ -56,9 +56,9 @@ class database
 	}
 	public function getPDO()
 	{
-		if(is_file("dsn/{$this->dsn}.php"))
+		if(is_file(dirname(__FILE__)."/dsn/{$this->dsn}.php"))
 		{
-			require_once("dsn/{$this->dsn}.php");
+			require_once(dirname(__FILE__)."/dsn/{$this->dsn}.php");
 			$dsn="database_{$this->dsn}";
 			return new $dsn
 			(
