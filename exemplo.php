@@ -1,4 +1,5 @@
 <?php
+ini_set("display_errors","On");
 //error_reporting(E_ERROR AND E_WARNING);
 error_reporting(E_ALL);
 function pr($v)
@@ -6,7 +7,6 @@ function pr($v)
 	echo "<pre>".print_r($v,1)."</pre>";
 }
 require_once("cmdb.php");
-ini_set("display_errors","On");
 $database_params=array
 (
 	'dsn'=>"mysql",
@@ -15,12 +15,6 @@ $database_params=array
 	'host'=>"localhost",
 	'dbname'=>"bd_teste"
 );
-/*
-$cmdb=new cmdb(); Não irá funcionar
-é necessario implementar uma classe extendida
-da mesma forma que é necessario criar todos os métodos abstratos da cmdb
-*/
-
 /**
  * classe teste
  * Classe para exemplificar o uso da cmdb
@@ -43,39 +37,44 @@ class teste extends cmdb
 	 * -melhor legibilidade(minha opinião)
 	 * -caso extenda a classe ou acrescente métodos não irão influenciar na comunicação com a cmdb
 	 */
-	public $fields=array("codigo","dependencia","nome","sobrenome");
-	public $map=array("dependencia"=>array("attr"=>"dependencia","table"=>"teste","fk"=>"codigo"));
+	public $fields=array(
+		"codigo"=>array("name"=>"codigo"),
+		"dependencia"=>array("name"=>"dependencia"),
+		"nome"=>array("name"=>"nome"),
+		"sobrenome"=>array("name"=>"sobrenome"),
+	);
+	public $relation=array("from"=>array(array("local_field"=>"dependencia","remote_table"=>"teste","remote_field"=>"codigo")));
 	public $table="teste";
-        /**
-         * @name __get
-         * @abstract retorna o valor de um atributo da classe
-         * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
-         * @since  08/02/2011 08:57:00
-         * @final  09/03/2011 16:53:59
-         * @subpackage cmdb
-         * @version 1.0
-         * @param $p
-         * @access public
-         */
-        public function __get($p)
+		/**
+		 * @name __get
+		 * @abstract retorna o valor de um atributo da classe
+		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+		 * @since  08/02/2011 08:57:00
+		 * @final  09/03/2011 16:53:59
+		 * @subpackage cmdb
+		 * @version 1.0
+		 * @param $p
+		 * @access public
+		 */
+		public function __get($p)
+		{
+			return isset($this->$p)?$this->$p:false;
+		}
+		/**
+		 * @name __set 
+		 * @abstract altera o valor de um atributo da classe
+		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+		 * @since  08/02/2011 08:57:00
+		 * @final  09/03/2011 16:53:59
+		 * @subpackage cmdb
+		 * @version 1.0
+		 * @param $p
+		 * @param $v
+		 * @access public
+		 */
+		public function __set($p,$v)
 	{
-		return isset($this->$p)?$this->$p:false;
-	}
-        /**
-         * @name __set 
-         * @abstract altera o valor de um atributo da classe
-         * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
-         * @since  08/02/2011 08:57:00
-         * @final  09/03/2011 16:53:59
-         * @subpackage cmdb
-         * @version 1.0
-         * @param $p
-         * @param $v
-         * @access public
-         */
-        public function __set($p,$v)
-	{
-            $this->$p=$this->real_value($p,$v);
+			$this->$p=$this->real_value($p,$v);
 	}
 }
 $teste= new teste();
