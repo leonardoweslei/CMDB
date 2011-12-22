@@ -15,17 +15,17 @@ require_once("database.php");
     {
 		/*** Atributos: ***/
 		/**
-		 * A variável $campos guarda todos os campos da  da tabela do banco de dados a ser trabalhada
+		 * A variável $campos guarda a estrutura da tabela sendo que a as chaves do array são os nomes dos campos e os valores as estruturas dos campos
 		 *
 		 * @var public array $campos
 		 */
 		public $fields=array();
 		/**
-		 * A variável $map guarda os dados dos relacionamentos dos atributos
+		 * A variável $relation guarda as relações da tabela onde a posicao "to" guarda os dados de campos de outras tabelas que usam campos da tabela e a posição "from" guarda os dados dos campos de outras tabelas usadas por campos da tabela
 		 *
-		 * @var public array $map
+		 * @var public array $struct
 		 */
-		public $map=array();
+		public $relation=array();
 		/**
 		 * A variável $table guarda o nome da tabela/classe para criar objetos
 		 *
@@ -77,7 +77,7 @@ require_once("database.php");
 				while(list( , $arg) = each($args))
 				{
 				    list(, $field)=each($this->fields);
-				    $this->__set($field,$arg);
+				    $this->__set($field['name'],$arg);
 				}
 		}
 		/**
@@ -117,9 +117,9 @@ require_once("database.php");
 		 * @access public
 		 */
 		public function get($p)
-	{
-		return isset($this->$p)?$this->$p:false;
-	}
+		{
+			return isset($this->$p)?$this->$p:false;
+		}
 		/**
 		 * @name set 
 		 * @abstract altera o valor de um atributo da classe e retorna um clone do objeto
@@ -133,10 +133,10 @@ require_once("database.php");
 		 * @access public
 		 */
 		public function set($p,$v)
-	{
-		    $this->$p=$this->absolute_value($p,$v);
-		    return $this->factory();
-	}
+		{
+			    $this->$p=$this->absolute_value($p,$v);
+			    return $this->factory();
+		}
 		/**
 		 * @name absolute_value
 		 * @abstract altera o valor de um atributo da classe e retorna um clone do objeto
@@ -151,25 +151,28 @@ require_once("database.php");
 		 */
 		public function absolute_value($p,$v)
 		{
-		    $attr_map=false;
-		    if(isset($this->map[$p]))
+		    $attr_relation=false;
+		    if(isset($this->relation["from"]) && !empty($this->relation["from"]))
 		    {
-				$attr_map=$this->map[$p];
+			    if(isset($this->relation["from"][$p]))
+			    {
+					$attr_relation=$this->relation["from"][$p];
+			    }
+			    elseif(array_search($p,$this->relation["from"])!==false)
+			    {
+					$k=array_search($p,$this->relation["from"]);
+					$attr_relation=$k['local_field']==$p?$k:false;
+			    }
 		    }
-		    elseif(array_search($p,$this->map)!==false)
+		    if(!empty($attr_relation))
 		    {
-				$k=array_search($p,$this->map);
-				$attr_map=$k['attr']==$p?$k:false;
-		    }
-		    if(!empty($attr_map))
-		    {
-				if(is_object($v) && is_a($v,$attr_map['table']))
+				if(is_object($v) && $attr_relation && is_a($v,$attr_relation['remote_table']))
 				{
-				    $v=$v->$attr_map['fk'];
+				    $v=$v->$attr_relation['remote_field'];
 				}
-				elseif(is_array($v) && isset($v[$attr_map['fk']]))
+				elseif(is_array($v) && $attr_relation && isset($v[$attr_relation['remote_field']]))
 				{
-				    $v=$v[$attr_map['fk']];
+				    $v=$v[$attr_relation['remote_field']];
 				}
 				elseif(is_array($v))
 				{
@@ -204,6 +207,32 @@ require_once("database.php");
 		    {
 				return $obj->get_object(true);
 		    }
+		}
+		/**
+		 * @name attr_fetch 
+		 * @abstract pega um dado referente a um campo
+		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+		 * @since  20/12/2011 16:44:00
+		 * @subpackage cmdb
+		 * @version 1.0
+		 * @param $attr
+		 * @param $key
+		 * @access private
+		 */
+		private function attr_fetch($attr,$key="name")
+		{
+			foreach ($this->fields as $k=>$v)
+			{
+				if(is_array($v) && ($v['name']==$attr))
+				{
+					return $v[$k];
+				}
+				else
+				{
+					return empty($v)?$k:$v;
+				}
+			}
+			return false;
 		}
 		/**
 		 * @name __call 
@@ -301,12 +330,12 @@ require_once("database.php");
 						break;
 				}
 			}
-			elseif(in_array($method,$this->fields) && count($arguments)>1)
+			elseif($this->attr_fetch($method)==$method && count($arguments)>1)
 			{
 				array_unshift($arguments,$method);
 				return call_user_func_array(array($this, "set"), $arguments);
 			}
-			elseif(in_array($method,$this->fields) && count($arguments)==0)
+			elseif($this->attr_fetch($method)==$method && count($arguments)==0)
 			{
 				array_unshift($arguments,$method);
 				return call_user_func_array(array($this, "get"), $arguments);
@@ -330,34 +359,18 @@ require_once("database.php");
 		 */
 		public function factory($clear=false)
 		{
-		    //$tmp=new $this->table();
 		    if(empty($clear))
 		    {
-				/*$tmp->query=$this->query;
-				$tmp->last_query=$this->last_query;
-				$tmp->result=$this->result;
-				$tmp->error=$this->error;
-				foreach($this->fields as $c)
-				{
-				    $tmp->$c=$this->$c;
-				}
-				return $tmp;*/
 				return $this;
 		    }
 		    else if($clear==2)
 		    {
-				/*foreach($this->fields as $c)
-				{
-				    $tmp->$c=$this->$c;
-				}*/
 				foreach(get_class_vars(__CLASS__) as $c)
 				{
-				    $this->$c=in_array($c,$this->fields)?$this->$c:false;
+				    $this->$c=$this->attr_fetch($c)==$c?$this->$c:false;
 				}
-				//return $tmp;
 				return $this;
 		    }
-		    //return $tmp;
 		    return $this;
 		}
 		/**
@@ -374,10 +387,13 @@ require_once("database.php");
 		public function get_values()
 		{
 		    $tmp=array();
-		    foreach($this->fields as $c)
-		    {
-				$tmp[$c]=$this->$c;
-		    }
+			foreach(get_class_vars(__CLASS__) as $c)
+			{
+			    if($this->attr_fetch($c)==$c)
+			    {
+			    	$tmp[$c]=$this->$c;
+			    }
+			}
 		    return $tmp;
 		}
 		/**
@@ -394,10 +410,13 @@ require_once("database.php");
 		public function get_fields()
 		{
 		    $tmp=array();
-		    foreach($this->fields as $c)
-		    {
-				$tmp[$c]=$c;
-		    }
+			foreach(get_class_vars(__CLASS__) as $c)
+			{
+			    if($this->attr_fetch($c)==$c)
+			    {
+			    	$tmp[$c]=$c;
+			    }
+			}
 		    return $tmp;
 		}
 		/**
@@ -796,20 +815,23 @@ require_once("database.php");
 		 * @final  09/03/2011 16:53:59
 		 * @subpackage cmdb
 		 * @version 1.0
-		 * @param bolleam $persistencia
+		 * @param bolleam $persistence
 		 * @access public
 		 */
-		public function get_array($persistencia=false)
+		public function get_array($persistence=false)
 		{
 			$tmp=array();
 			foreach($this->result as $un)
 			{
 				$temp=$un;
-				if($persistencia)
+				if($persistence)
 				{
-					foreach($this->map as $attr=>$data)
+					if(isset($this->relation["from"]) && !empty($this->relation["from"]))
 					{
-						$temp[$attr]=$this->persistence($temp[$attr],$data['table'],$data['fk'],"array");
+						foreach($this->relation["from"] as $data)
+						{
+							$temp[$data['local_field']]=$this->persistence($temp[$data['local_field']],$data['remote_table'],$data['remote_field'],"array");
+						}
 					}
 				}
 				$tmp[]=$temp;
@@ -825,25 +847,24 @@ require_once("database.php");
 		 * @final  09/03/2011 16:53:59
 		 * @subpackage cmdb
 		 * @version 1.0
-		 * @param bolleam $persistencia
+		 * @param bolleam $persistence
 		 * @access public
 		 */
-		public function get_object($persistencia=false)
+		public function get_object($persistence=false)
 		{
 			$tmp=array();
 			foreach($this->result as $un)
 			{
 				$temp=new $this->table;
 				$temp->extract($un);
-				if($persistencia)
+				if($persistence)
 				{
-					foreach($this->map as $attr=>$data)
+					if(isset($this->relation["from"]) && !empty($this->relation["from"]))
 					{
-					    if(is_int($attr))
-					    {
-							$attr=$data['attr'];
-					    }
-						$temp->$attr=$this->persistence($temp->$attr,$data['table'],$data['fk'],"object");
+						foreach($this->relation["from"] as $data)
+						{
+							$temp->$data['local_field']=$this->persistence($temp[$data['local_field']],$data['remote_table'],$data['remote_field'],"object");
+						}
 					}
 				}
 				$tmp[]=$temp;
@@ -864,10 +885,13 @@ require_once("database.php");
 		 */
 		public function extract($values=array())
 		{
-		    foreach($this->fields as $attr)
-		    {
-				$this->__set($attr,(isset($values[$attr])?$values[$attr]:false));
-		    }
+			foreach(get_class_vars(__CLASS__) as $c)
+			{
+			    if($this->attr_fetch($c)==$c)
+			    {
+					$this->__set($c,(isset($values[$c])?$values[$c]:false));
+			    }
+			}
 		    return $this->factory();
 		}
 		/**
@@ -903,11 +927,6 @@ require_once("database.php");
 		 */
 		public function compact()
 		{
-		    $tmp=array();
-		    foreach($this->fields as $attr)
-		    {
-				$tmp[$attr]=$this->$attr;
-		    }
-		    return $tmp;
+			return $this->get_values();
 		}
     } // fim da classe cmdb
