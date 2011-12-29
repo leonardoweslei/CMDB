@@ -7,6 +7,12 @@ function pr($v)
 	echo "<pre>".print_r($v,1)."</pre>";
 }
 require_once("cmdb.php");
+function __autoload($className)
+{
+	echo "Now loading: $className<br />";
+    
+	eval("class $className {}");
+}
 $database_params=array
 (
 	'dsn'=>"mysql",
@@ -15,6 +21,16 @@ $database_params=array
 	'host'=>"localhost",
 	'dbname'=>"bd_teste"
 );
+/**$msql=new database("mysql","localhost","root","123","leocotta_sistec");
+$msql=$msql->getconection();
+pr($msql->table_info("funcao"));
+pr($msql->table_relations_to("galeria"));/**/
+/*
+$cmdb=new cmdb(); Não irá funcionar
+é necessario implementar uma classe extendida
+da mesma forma que é necessario criar todos os métodos abstratos da cmdb
+*/
+$teste= new cmdbxxx;
 /**
  * classe teste
  * Classe para exemplificar o uso da cmdb
@@ -26,11 +42,6 @@ $database_params=array
  */
 class teste extends cmdb
 {
-	/* atributos privados que irão representar os campos da tabela */
-	private $codigo=false;
-	private $dependencia=false;
-	private $nome=false;
-	private $sobrenome=false;
 	/**
 	 * atributos publicos que irão interagir com a cmdb,
 	 * não são usados diretamente os nomes dos atributos porque:
@@ -58,7 +69,7 @@ class teste extends cmdb
 		 */
 		public function __get($p)
 		{
-			return isset($this->$p)?$this->$p:false;
+			return isset($this->values[$p])?$this->values[$p]:false;
 		}
 		/**
 		 * @name __set 
@@ -73,14 +84,14 @@ class teste extends cmdb
 		 * @access public
 		 */
 		public function __set($p,$v)
-	{
-			$this->$p=$this->real_value($p,$v);
-	}
+		{
+			$this->values[$p]=$this->real_value($p,$v);
+		}
 }
 $teste= new teste();
 
 //selecionando todos os dados da tabela
-$teste->select();
+$teste->select()->set_result();
 
 //retornando o resultado do select em um array
 $dados=$teste->get_array(1);

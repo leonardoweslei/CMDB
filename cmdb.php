@@ -21,6 +21,12 @@ require_once("database.php");
 		 */
 		public $fields=array();
 		/**
+		 * A variável $values guarda os valores dos campos
+		 *
+		 * @var public array $values
+		 */
+		public $values=array();
+		/**
 		 * A variável $relation guarda as relações da tabela onde a posicao "to" guarda os dados de campos de outras tabelas que usam campos da tabela e a posição "from" guarda os dados dos campos de outras tabelas usadas por campos da tabela
 		 *
 		 * @var public array $struct
@@ -77,7 +83,7 @@ require_once("database.php");
 				while(list( , $arg) = each($args))
 				{
 				    list(, $field)=each($this->fields);
-				    $this->__set($field['name'],$arg);
+				    $this->values[$field['name']]=$arg;
 				}
 		}
 		/**
@@ -118,7 +124,7 @@ require_once("database.php");
 		 */
 		public function get($p)
 		{
-			return isset($this->$p)?$this->$p:false;
+			return isset($this->values[$p])?$this->values[$p]:false;
 		}
 		/**
 		 * @name set 
@@ -134,8 +140,8 @@ require_once("database.php");
 		 */
 		public function set($p,$v)
 		{
-			    $this->$p=$this->absolute_value($p,$v);
-			    return $this->factory();
+			    $this->values[$p]=$this->absolute_value($p,$v);
+			    return $this;
 		}
 		/**
 		 * @name absolute_value
@@ -225,11 +231,7 @@ require_once("database.php");
 			{
 				if(is_array($v) && ($v['name']==$attr))
 				{
-					return $v[$k];
-				}
-				else
-				{
-					return empty($v)?$k:$v;
+					return $v[$key];
 				}
 			}
 			return false;
@@ -253,84 +255,7 @@ require_once("database.php");
 			{
 				return call_user_func_array(array($this, $method), $arguments);
 			}
-			elseif(substr_count($method,"_")>0)
-		    {
-				$method=explode("_",$method);
-				$attr=$method[0];
-				$method=$method[1];
-				//array_unshift($arguments,$attr);
-				switch($method)
-				{
-					case "eq":
-						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
-						return $this->__set_data_query($attr."='".$value."'","where",(isset($arguments[1])?$arguments[1]:false));
-						break;
-					case "ne":
-						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
-						return $this->__set_data_query($attr."!='".$value."'","where",(isset($arguments[1])?$arguments[1]:false));
-						break;
-					case "gt":
-						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
-						return $this->__set_data_query($attr.">'".$value."'","where",(isset($arguments[1])?$arguments[1]:false));
-						break;
-					case "ge":
-						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
-						return $this->__set_data_query($attr.">='".$value."'","where",(isset($arguments[1])?$arguments[1]:false));
-						break;
-					case "lt":
-						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
-						return $this->__set_data_query($attr."<'".$value."'","where",(isset($arguments[1])?$arguments[1]:false));
-						break;
-					case "le":
-						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
-						return $this->__set_data_query($attr."<='".$value."'","where",(isset($arguments[1])?$arguments[1]:false));
-						break;
-					case "between":
-						$value1=$arguments[0];
-						$value2=$arguments[1];
-						return $this->__set_data_query($attr." BETWEEN '".$value1."' AND '".$value2."'","where",(isset($arguments[2])?$arguments[2]:false));
-						break;
-					case "nbetween":
-						$value1=$arguments[0];
-						$value2=$arguments[1];
-						return $this->__set_data_query($attr." NOT BETWEEN '".$value1."' AND '".$value2."'","where",(isset($arguments[2])?$arguments[2]:false));
-						break;
-					case "in":
-						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
-						$value=is_array($value)?$value:array($value);
-						return $this->__set_data_query($attr." IN('".implode("','",$value)."')","where",(isset($arguments[1])?$arguments[1]:false));
-						break;
-					case "nin":
-						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
-						$value=is_array($value)?$value:array($value);
-						return $this->__set_data_query($attr." NOT IN('".implode("','",$value)."')","where",(isset($arguments[1])?$arguments[1]:false));
-						break;
-						break;
-					case "null":
-					case "isnull":
-					case "is_null":
-						return $this->__set_data_query($attr." IS NULL","where",(isset($arguments[0])?$arguments[0]:false));
-						break;
-					case "nnull":
-					case "isnotnull":
-						return $this->__set_data_query($attr." IS NOT NULL","where",(isset($arguments[0])?$arguments[0]:false));
-						break;
-					case "like":
-						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
-						return $this->__set_data_query($attr." like '".$value."'","where",(isset($arguments[1])?$arguments[1]:false));
-						break;
-					case "nlike":
-					case "notlike":
-					case "not_like":
-						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
-						return $this->__set_data_query($attr." like '".$value."'","where",(isset($arguments[1])?$arguments[1]:false));
-						break;
-					default:
-						return $this->factory();
-						break;
-				}
-			}
-			elseif($this->attr_fetch($method)==$method && count($arguments)>1)
+			elseif($this->attr_fetch($method)==$method && count($arguments)==1)
 			{
 				array_unshift($arguments,$method);
 				return call_user_func_array(array($this, "set"), $arguments);
@@ -340,38 +265,88 @@ require_once("database.php");
 				array_unshift($arguments,$method);
 				return call_user_func_array(array($this, "get"), $arguments);
 			}
+			elseif(substr_count($method,"_")>0)
+		    {
+				$method=explode("_",$method);
+				$m=array_pop($method);
+				$attr=implode("_", $method);
+				$method=$m;
+				//array_unshift($arguments,$attr);
+				switch($method)
+				{
+					case "eq":
+						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
+						return $this->__set_data_query($attr."='".$value."'","where",(isset($arguments[1])?$arguments[1]:" AND "));
+						break;
+					case "ne":
+						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
+						return $this->__set_data_query($attr."!='".$value."'","where",(isset($arguments[1])?$arguments[1]:" AND "));
+						break;
+					case "gt":
+						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
+						return $this->__set_data_query($attr.">'".$value."'","where",(isset($arguments[1])?$arguments[1]:" AND "));
+						break;
+					case "ge":
+						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
+						return $this->__set_data_query($attr.">='".$value."'","where",(isset($arguments[1])?$arguments[1]:" AND "));
+						break;
+					case "lt":
+						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
+						return $this->__set_data_query($attr."<'".$value."'","where",(isset($arguments[1])?$arguments[1]:" AND "));
+						break;
+					case "le":
+						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
+						return $this->__set_data_query($attr."<='".$value."'","where",(isset($arguments[1])?$arguments[1]:" AND "));
+						break;
+					case "between":
+						$value1=$arguments[0];
+						$value2=$arguments[1];
+						return $this->__set_data_query($attr." BETWEEN '".$value1."' AND '".$value2."'","where",(isset($arguments[2])?$arguments[2]:" AND "));
+						break;
+					case "nbetween":
+						$value1=$arguments[0];
+						$value2=$arguments[1];
+						return $this->__set_data_query($attr." NOT BETWEEN '".$value1."' AND '".$value2."'","where",(isset($arguments[2])?$arguments[2]:" AND "));
+						break;
+					case "in":
+						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
+						$value=is_array($value)?$value:array($value);
+						return $this->__set_data_query($attr." IN('".implode("','",$value)."')","where",(isset($arguments[1])?$arguments[1]:" AND "));
+						break;
+					case "nin":
+						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
+						$value=is_array($value)?$value:array($value);
+						return $this->__set_data_query($attr." NOT IN('".implode("','",$value)."')","where",(isset($arguments[1])?$arguments[1]:" AND "));
+						break;
+						break;
+					case "null":
+					case "isnull":
+					case "is_null":
+						return $this->__set_data_query($attr." IS NULL","where",(isset($arguments[0])?$arguments[0]:" AND "));
+						break;
+					case "nnull":
+					case "isnotnull":
+						return $this->__set_data_query($attr." IS NOT NULL","where",(isset($arguments[0])?$arguments[0]:" AND "));
+						break;
+					case "like":
+						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
+						return $this->__set_data_query($attr." like '".$value."'","where",(isset($arguments[1])?$arguments[1]:" AND "));
+						break;
+					case "nlike":
+					case "notlike":
+					case "not_like":
+						$value=(count($arguments)==0 || !$arguments[0])?$this->$attr:$arguments[0];
+						return $this->__set_data_query($attr." like '".$value."'","where",(isset($arguments[1])?$arguments[1]:" AND "));
+						break;
+					default:
+						return $this;
+						break;
+				}
+			}
 			else
 			{
-				return $this->factory();
+				return $this;
 			}
-		}
-		/**
-		 * @name factory
-		 * @abstract retorna um objeto da classe clonado ou NÃO dependendo do parametro passado
-		 * 
-		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
-		 * @since  08/02/2011 08:57:00
-		 * @final  09/03/2011 16:53:59
-		 * @subpackage cmdb
-		 * @version 1.0
-		 * @param $clear determina se o objeto vai ser vazio ou nao
-		 * @access public
-		 */
-		public function factory($clear=false)
-		{
-		    if(empty($clear))
-		    {
-				return $this;
-		    }
-		    else if($clear==2)
-		    {
-				foreach(get_class_vars(__CLASS__) as $c)
-				{
-				    $this->$c=$this->attr_fetch($c)==$c?$this->$c:false;
-				}
-				return $this;
-		    }
-		    return $this;
 		}
 		/**
 		 * @name get_values
@@ -387,13 +362,10 @@ require_once("database.php");
 		public function get_values()
 		{
 		    $tmp=array();
-			foreach(get_class_vars(__CLASS__) as $c)
-			{
-			    if($this->attr_fetch($c)==$c)
-			    {
-			    	$tmp[$c]=$this->$c;
-			    }
-			}
+		    foreach($this->fields as $field)
+		    {
+		    	$tmp[$field['name']]=(isset($this->values[$field['name']])?$this->values[$field['name']]:false);
+		    }
 		    return $tmp;
 		}
 		/**
@@ -410,13 +382,10 @@ require_once("database.php");
 		public function get_fields()
 		{
 		    $tmp=array();
-			foreach(get_class_vars(__CLASS__) as $c)
-			{
-			    if($this->attr_fetch($c)==$c)
-			    {
-			    	$tmp[$c]=$c;
-			    }
-			}
+		    foreach($this->fields as $field)
+		    {
+		    	$tmp[$field['name']]=$field['name'];
+		    }
 		    return $tmp;
 		}
 		/**
@@ -511,7 +480,7 @@ require_once("database.php");
 				    }
 				}
 		    }
-		    return $this->factory();
+		    return $this;
 		}
 		/**
 		 * @name where
@@ -626,7 +595,7 @@ require_once("database.php");
 		public function limit($init=0,$end=10)
 		{
 		    $this->query["limit"]=$init.", ".$end;
-		    return $this->factory();
+		    return $this;
 		}
 		/**
 		 * @name select
@@ -643,7 +612,7 @@ require_once("database.php");
 		public function select($table_fields=false,$d=false)
 		{
 		    $fields=$this->get_fields_query();
-		    $fields=empty($table_fields)?$fields:$this->get_fields();
+		    $fields=(!$table_fields || empty($fields)?$this->get_fields():$fields);
 		    $query='SELECT '.(empty($fields)?'*':implode(",",$fields)).' FROM '.(empty($this->query['table'])?$this->table:implode(" ",$this->query['table']));
 			$query.=empty($this->query['where'])?'':' WHERE '.implode("",$this->query['where']);
 			$query.=empty($this->query['group'])?'':' GROUP BY '.implode(", ",$this->query['group']);
@@ -666,7 +635,7 @@ require_once("database.php");
 		public function update($table_fields=false,$d=false)
 		{
 		    $fields=$this->get_fields_query();
-		    $fields=(empty($table_fields)&& !empty($fields)?$fields:$this->get_fields());
+		    $fields=(!$table_fields || empty($fields)?$this->get_fields():$fields);
 		    $values=$this->get_values_query();
 		    $values=empty($table_fields) && !empty($values)?$values:$this->get_values();
 		    $data=array();
@@ -674,7 +643,7 @@ require_once("database.php");
 		    foreach($fields as $k=>$v)
 		    {
 				//$value=empty($values[$k])?(empty($this->$k)?"NULL":$this->$k):$values[$k];
-				$value=empty($values[$k])?(empty($this->$k)?NULL:$this->$k):$values[$k];
+				$value=empty($values[$k])?(empty($this->values[$k])?NULL:$this->values[$k]):$values[$k];
 				//$values[$k]=($value=="NULL"?"NULL":$value);
 				$values[$k]=($value==NULL?NULL:$value);
 				$data[":".$k]=$values[$k];
@@ -699,21 +668,21 @@ require_once("database.php");
 		 * @param $table_fields determina se o nome dos atributos padrões da classe vão ser usados ou o valor contido na posição 'value' do atributo query
 		 * @access public
 		 */
-		public function replace($table_fields=false)
+		public function replace($table_fields=false,$d=false)
 		{
 		    $fields=$this->get_fields_query();
-		    $fields=(empty($table_fields)&& !empty($fields)?$fields:$this->get_fields());
+		    $fields=(!$table_fields || empty($fields)?$this->get_fields():$fields);
 		    $values=$this->get_values_query();
 		    $values=empty($table_fields) && !empty($values)?$values:$this->get_values();
 		    $data=array();
 		    foreach($fields as $k=>$v)
 		    {
-				$value=empty($values[$k])?(empty($this->$k)?NULL:$this->$k):$values[$k];
+				$value=empty($values[$k])?(empty($this->values[$k])?NULL:$this->values[$k]):$values[$k];
 				$values[$k]=($value==NULL?NULL:$value);
 				$data[":".$k]=$values[$k];
 		    }
 		    $query='REPLACE INTO '.$this->table.'('.implode(", ",array_keys($fields)).') VALUES('.implode(", ",array_keys($data)).")";
-		    return $this->exec($query,$data);
+		    return $this->exec($query,$data,$d);
 		}
 		/**
 		 * @name delete
@@ -726,14 +695,14 @@ require_once("database.php");
 		 * @version 1.0
 		 * @access public
 		 */
-		public function delete()
+		public function delete($d=false)
 		{
 		    $query='DELETE FROM '.(empty($this->query['table'])?$this->table:implode(" ",$this->query['table']));
 		    $query.=empty($this->query['where'])?'':' WHERE '.implode("",$this->query['where']);
 		    $query.=empty($this->query['group'])?'':' GROUP BY '.implode(", ",$this->query['group']);
 		    $query.=empty($this->query['order'])?'':' ORDER BY '.implode(", ",$this->query['order']);
 		    $query.=empty($this->query['limit'])?'':' LIMIT '.$this->query['limit'];
-		    return $this->exec($query);
+		    return $this->exec($query,null,$d);
 		}
 		/**
 		 * @name insert
@@ -750,13 +719,13 @@ require_once("database.php");
 		public function insert($table_fields=false,$d=false)
 		{
 		    $fields=$this->get_fields_query();
-		    $fields=(empty($table_fields)&& !empty($fields)?$fields:$this->get_fields());
+		    $fields=(!$table_fields || empty($fields)?$this->get_fields():$fields);
 		    $values=$this->get_values_query();
 		    $values=empty($table_fields) && !empty($values)?$values:$this->get_values();
 		    $data=array();
 		    foreach($fields as $k=>$v)
 		    {
-				$value=empty($values[$k])?(empty($this->$k)?NULL:$this->$k):$values[$k];
+				$value=empty($values[$k])?(empty($this->values[$k])?NULL:$this->values[$k]):$values[$k];
 				$values[$k]=($value==NULL?NULL:$value);
 				$data[":".$k]=$values[$k];
 		    }
@@ -885,14 +854,11 @@ require_once("database.php");
 		 */
 		public function extract($values=array())
 		{
-			foreach(get_class_vars(__CLASS__) as $c)
+			foreach($this->fields as $field)
 			{
-			    if($this->attr_fetch($c)==$c)
-			    {
-					$this->__set($c,(isset($values[$c])?$values[$c]:false));
-			    }
+				$this->values[$field['name']]=(isset($values[$field['name']])?$values[$field['name']]:false);
 			}
-		    return $this->factory();
+		    return $this;
 		}
 		/**
 		 * @name set_result
@@ -912,7 +878,7 @@ require_once("database.php");
 				$r=$num<count($this->result)?$this->result[$num]:$this->result[0];
 				$this->extract($r);
 		    }
-		    return $this->factory();
+		    return $this;
 		}
 		/**
 		 * @name compact
