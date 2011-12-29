@@ -7,30 +7,6 @@ function pr($v)
 	echo "<pre>".print_r($v,1)."</pre>";
 }
 require_once("cmdb.php");
-function __autoload($className)
-{
-	echo "Now loading: $className<br />";
-    
-	eval("class $className {}");
-}
-$database_params=array
-(
-	'dsn'=>"mysql",
-	'user'=>"root",
-	'passwd'=>"123",
-	'host'=>"localhost",
-	'dbname'=>"bd_teste"
-);
-/**$msql=new database("mysql","localhost","root","123","leocotta_sistec");
-$msql=$msql->getconection();
-pr($msql->table_info("funcao"));
-pr($msql->table_relations_to("galeria"));/**/
-/*
-$cmdb=new cmdb(); NÃ£o irÃ¡ funcionar
-Ã© necessario implementar uma classe extendida
-da mesma forma que Ã© necessario criar todos os mÃ©todos abstratos da cmdb
-*/
-$teste= new cmdbxxx;
 /**
  * classe teste
  * Classe para exemplificar o uso da cmdb
@@ -43,10 +19,10 @@ $teste= new cmdbxxx;
 class teste extends cmdb
 {
 	/**
-	 * atributos publicos que irÃ£o interagir com a cmdb,
-	 * nÃ£o sÃ£o usados diretamente os nomes dos atributos porque:
-	 * -melhor legibilidade(minha opiniÃ£o)
-	 * -caso extenda a classe ou acrescente mÃ©todos nÃ£o irÃ£o influenciar na comunicaÃ§Ã£o com a cmdb
+	 * atributos publicos que irão interagir com a cmdb,
+	 * não são usados diretamente os nomes dos atributos porque:
+	 * -melhor legibilidade(minha opinião)
+	 * -caso extenda a classe ou acrescente métodos não irão influenciar na comunicação com a cmdb
 	 */
 	public $fields=array(
 		"codigo"=>array("name"=>"codigo"),

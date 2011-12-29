@@ -15,31 +15,31 @@ require_once("database.php");
     {
 		/*** Atributos: ***/
 		/**
-		 * A vari√°vel $campos guarda a estrutura da tabela sendo que a as chaves do array s√£o os nomes dos campos e os valores as estruturas dos campos
+		 * A vari·vel $campos guarda a estrutura da tabela sendo que a as chaves do array s„o os nomes dos campos e os valores as estruturas dos campos
 		 *
 		 * @var public array $campos
 		 */
 		public $fields=array();
 		/**
-		 * A vari√°vel $values guarda os valores dos campos
+		 * A vari·vel $values guarda os valores dos campos
 		 *
 		 * @var public array $values
 		 */
 		public $values=array();
 		/**
-		 * A vari√°vel $relation guarda as rela√ß√µes da tabela onde a posicao "to" guarda os dados de campos de outras tabelas que usam campos da tabela e a posi√ß√£o "from" guarda os dados dos campos de outras tabelas usadas por campos da tabela
+		 * A vari·vel $relation guarda as relaÁıes da tabela onde a posicao "to" guarda os dados de campos de outras tabelas que usam campos da tabela e a posiÁ„o "from" guarda os dados dos campos de outras tabelas usadas por campos da tabela
 		 *
 		 * @var public array $struct
 		 */
 		public $relation=array();
 		/**
-		 * A vari√°vel $table guarda o nome da tabela/classe para criar objetos
+		 * A vari·vel $table guarda o nome da tabela/classe para criar objetos
 		 *
 		 * @var public array $table
 		 */
 		public $table=false;
 		/**
-		 * A vari√°vel $query dados das consultas a serem executadas e/ou condi√ß√µes para a execu√ß√£o no banco de dados
+		 * A vari·vel $query dados das consultas a serem executadas e/ou condiÁıes para a execuÁ„o no banco de dados
 		 *
 		 * @var private array $query
 		 */
@@ -55,19 +55,19 @@ require_once("database.php");
 		    'limit'=>""
 		);
 		/**
-		 * A vari√°vel $result guarda os dados do resultado da √∫ltima query executada
+		 * A vari·vel $result guarda os dados do resultado da ˙ltima query executada
 		 *
 		 * @var private array $result
 		 */
 		protected $result=false;
 		/**
-		 * A vari√°vel $last_query guarda a √∫ltima consulta executada
+		 * A vari·vel $last_query guarda a ˙ltima consulta executada
 		 *
 		 * @var private char $last_query
 		 */
 		protected $last_query=false;
 		/**
-		 * A vari√°vel $error determina se houve erro na execu√ß√£o se o valor da vari√°vel for verdadeiro houve um erro
+		 * A vari·vel $error determina se houve erro na execuÁ„o se o valor da vari·vel for verdadeiro houve um erro
 		 *
 		 * @var public bool $error
 		 */
@@ -238,7 +238,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name __call 
-		 * @abstract "emula" um m√©todo de acordo com os atributos da classe
+		 * @abstract "emula" um mÈtodo de acordo com os atributos da classe
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  27/09/2011 17:51:00
 		 * @subpackage cmdb
@@ -390,7 +390,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name get_values_query
-		 * @abstract retorna os valores contidos na posi√ß√£o 'value' do atributo query da classe se N√ÉO existir relacao entre o dado e a posi√ß√£o 'field' ele tenta assumir o valor do atributo da classe, e se este for nulo o atributo assume valor nulo
+		 * @abstract retorna os valores contidos na posiÁ„o 'value' do atributo query da classe se N√O existir relacao entre o dado e a posiÁ„o 'field' ele tenta assumir o valor do atributo da classe, e se este for nulo o atributo assume valor nulo
 		 * 
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  08/02/2011 08:57:00
@@ -410,7 +410,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name get_fields_query
-		 * @abstract retorna os valores contidos na posi√ß√£o 'field' do atributo query da classe
+		 * @abstract retorna os valores contidos na posiÁ„o 'field' do atributo query da classe
 		 * 
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  08/02/2011 08:57:00
@@ -430,7 +430,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name __set_data_query
-		 * @abstract altera as condi√ß√µes para execucoes de querys
+		 * @abstract altera as condiÁıes para execucoes de querys
 		 * 
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  08/02/2011 08:57:00
@@ -484,7 +484,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name where
-		 * @abstract altera as condi√ß√µes para execu√ß√£o de querys contidas na posi√ß√£o 'where' do atributo query, caso o valor recebido seja um array o dado √© interpretado como uma √∫nica condi√ß√£o
+		 * @abstract altera as condiÁıes para execuÁ„o de querys contidas na posiÁ„o 'where' do atributo query, caso o valor recebido seja um array o dado È interpretado como uma ˙nica condiÁ„o
 		 * 
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  08/02/2011 08:57:00
@@ -492,7 +492,7 @@ require_once("database.php");
 		 * @subpackage cmdb
 		 * @version 1.0
 		 * @param $value valor
-		 * @param $sep separador de condi√ß√£o
+		 * @param $sep separador de condiÁ„o
 		 * @access public
 		 */
 		public function where($value,$sep="AND")
@@ -501,7 +501,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name field
-		 * @abstract  altera os campos a serem recuperados/alterados durante a execu√ß√£o de querys, os valores s√£o armazenados na posi√ß√£o 'field' do atributo query, onde as chaves de cada posi√ß√£o mostram qual valor as mesmas referenciam dentro da classe por default a chave tera o mesmo valor da posi√ß√£o caso a chave N√ÉO seja passada
+		 * @abstract  altera os campos a serem recuperados/alterados durante a execuÁ„o de querys, os valores s„o armazenados na posiÁ„o 'field' do atributo query, onde as chaves de cada posiÁ„o mostram qual valor as mesmas referenciam dentro da classe por default a chave tera o mesmo valor da posiÁ„o caso a chave N√O seja passada
 		 * 
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  08/02/2011 08:57:00
@@ -517,7 +517,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name tables
-		 * @abstract seta jun√ß√µes da tabela contida no atrbuto $table com outras tabelas
+		 * @abstract seta junÁıes da tabela contida no atrbuto $table com outras tabelas
 		 * 
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  08/02/2011 08:57:00
@@ -533,7 +533,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name value
-		 * @abstract altera os valores a serem recuperados/alterados durante a execu√ß√£o de querys, os valores s√£o armazenados na posi√ß√£o 'value' do atributo query, onde as chaves de cada posi√ß√£o mostram qual valor as mesmas referenciam dentro da classe ou dentro da posi√ß√£o 'field' do atributo query
+		 * @abstract altera os valores a serem recuperados/alterados durante a execuÁ„o de querys, os valores s„o armazenados na posiÁ„o 'value' do atributo query, onde as chaves de cada posiÁ„o mostram qual valor as mesmas referenciam dentro da classe ou dentro da posiÁ„o 'field' do atributo query
 		 * 
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  08/02/2011 08:57:00
@@ -549,7 +549,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name order
-		 * @abstract adiciona condi√ß√£o de ordena√ß√£o de resultados de querys este valor e armazenado na posi√ß√£o 'order' do atributo query
+		 * @abstract adiciona condiÁ„o de ordenaÁ„o de resultados de querys este valor e armazenado na posiÁ„o 'order' do atributo query
 		 * 
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  08/02/2011 08:57:00
@@ -565,7 +565,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name group
-		 * @abstract adiciona condi√ß√£o de agrupamento de resultados de querys este valor e armazenado na posi√ß√£o 'group' do atributo query
+		 * @abstract adiciona condiÁ„o de agrupamento de resultados de querys este valor e armazenado na posiÁ„o 'group' do atributo query
 		 * 
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  08/02/2011 08:57:00
@@ -581,7 +581,7 @@ require_once("database.php");
 		}
 		/**
 		 * @name limit
-		 * @abstract  seta a quantidade de resultados de querys. este valor e armazenado na posi√ß√£o 'group' do atributo query
+		 * @abstract  seta a quantidade de resultados de querys. este valor e armazenado na posiÁ„o 'group' do atributo query
 		 * 
 		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
 		 * @since  08/02/2011 08:57:00
@@ -606,7 +606,7 @@ require_once("database.php");
 		 * @final  09/03/2011 16:53:59
 		 * @subpackage cmdb
 		 * @version 1.0
-		 * @param $table_fields determina se o nome dos atributos padr√µes da classe v√£o ser usados ou o valor contido na posi√ß√£o 'value' do atributo query
+		 * @param $table_fields determina se o nome dos atributos padrıes da classe v„o ser usados ou o valor contido na posiÁ„o 'value' do atributo query
 		 * @access public
 		 */
 		public function select($table_fields=false,$d=false)
@@ -629,7 +629,7 @@ require_once("database.php");
 		 * @final  09/03/2011 16:53:59
 		 * @subpackage cmdb
 		 * @version 1.0
-		 * @param $table_fields determina se o nome dos atributos padr√µes da classe v√£o ser usados ou o valor contido na posi√ß√£o 'value' do atributo query
+		 * @param $table_fields determina se o nome dos atributos padrıes da classe v„o ser usados ou o valor contido na posiÁ„o 'value' do atributo query
 		 * @access public
 		 */
 		public function update($table_fields=false,$d=false)
@@ -665,7 +665,7 @@ require_once("database.php");
 		 * @final  09/03/2011 16:53:59
 		 * @subpackage cmdb
 		 * @version 1.0
-		 * @param $table_fields determina se o nome dos atributos padr√µes da classe v√£o ser usados ou o valor contido na posi√ß√£o 'value' do atributo query
+		 * @param $table_fields determina se o nome dos atributos padrıes da classe v„o ser usados ou o valor contido na posiÁ„o 'value' do atributo query
 		 * @access public
 		 */
 		public function replace($table_fields=false,$d=false)
@@ -713,7 +713,7 @@ require_once("database.php");
 		 * @final  09/03/2011 16:53:59
 		 * @subpackage cmdb
 		 * @version 1.0
-		 * @param $table_fields determina se o nome dos atributos padr√µes da classe v√£o ser usados ou o valor contido na posi√ß√£o 'value' do atributo query
+		 * @param $table_fields determina se o nome dos atributos padrıes da classe v„o ser usados ou o valor contido na posiÁ„o 'value' do atributo query
 		 * @access public
 		 */
 		public function insert($table_fields=false,$d=false)
