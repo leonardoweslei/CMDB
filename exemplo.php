@@ -6,63 +6,44 @@ function pr($v)
 {
 	echo "<pre>".print_r($v,1)."</pre>";
 }
+$database_params=array
+(
+	'dsn'=>"mysql",
+	'user'=>"root",
+	'passwd'=>"123",
+	'host'=>"localhost",
+	'dbname'=>"bd_teste"
+);
 require_once("cmdb.php");
-/**
- * classe teste
- * Classe para exemplificar o uso da cmdb
- *
- * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
- * @since  27/09/2011 17:19:00
- * @version 1.0
- * @name teste
- */
 class teste extends cmdb
 {
-	/**
-	 * atributos publicos que irão interagir com a cmdb,
-	 * não são usados diretamente os nomes dos atributos porque:
-	 * -melhor legibilidade(minha opinião)
-	 * -caso extenda a classe ou acrescente métodos não irão influenciar na comunicação com a cmdb
-	 */
-	public $fields=array(
-		"codigo"=>array("name"=>"codigo"),
-		"dependencia"=>array("name"=>"dependencia"),
-		"nome"=>array("name"=>"nome"),
-		"sobrenome"=>array("name"=>"sobrenome"),
+	public $fields		= array
+	(
+		"codigo"		=> array("name"=>"codigo"),
+		"dependencia"	=> array("name"=>"dependencia"),
+		"nome"			=> array("name"=>"nome"),
+		"sobrenome"		=> array("name"=>"sobrenome"),
 	);
-	public $relation=array("from"=>array(array("local_field"=>"dependencia","remote_table"=>"teste","remote_field"=>"codigo")));
+	public $relation	= array
+	(
+		"from"			=> array
+		(
+			array(
+				"local_field"	=> "dependencia",
+				"remote_table"	=> "teste",
+				"remote_field"	=> "codigo"
+			)
+		)
+	);
 	public $table="teste";
-		/**
-		 * @name __get
-		 * @abstract retorna o valor de um atributo da classe
-		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
-		 * @since  08/02/2011 08:57:00
-		 * @final  09/03/2011 16:53:59
-		 * @subpackage cmdb
-		 * @version 1.0
-		 * @param $p
-		 * @access public
-		 */
-		public function __get($p)
-		{
-			return isset($this->values[$p])?$this->values[$p]:false;
-		}
-		/**
-		 * @name __set 
-		 * @abstract altera o valor de um atributo da classe
-		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
-		 * @since  08/02/2011 08:57:00
-		 * @final  09/03/2011 16:53:59
-		 * @subpackage cmdb
-		 * @version 1.0
-		 * @param $p
-		 * @param $v
-		 * @access public
-		 */
-		public function __set($p,$v)
-		{
-			$this->values[$p]=$this->real_value($p,$v);
-		}
+	public function __get($p)
+	{
+		return isset($this->values[$p])?$this->values[$p]:false;
+	}
+	public function __set($p,$v)
+	{
+		$this->values[$p]=$this->absolute_value($p,$v);
+	}
 }
 $teste= new teste();
 
@@ -73,7 +54,9 @@ $teste->select()->set_result();
 $dados=$teste->get_array(1);
 //$dados=$teste->get_object(1);
 pr($dados);
-
+$teste->nome="Cesar";
+$teste->search()->set_result();
+pr($teste);
 /*$raquel=new teste();
 $raquel->codigo_eq(4)->select()->set_result();
 $cesar=new teste();
