@@ -249,8 +249,8 @@ require_once("database.php");
 		 */
 		public function __call($method,$arguments)
 		{
-		    /*pr($method);
-		    pr($arguments);*/
+		    /**pr($method);
+		    pr($arguments);/**/
 			if(method_exists($this,$method))
 			{
 				return call_user_func_array(array($this, $method), $arguments);
@@ -621,6 +621,37 @@ require_once("database.php");
 		    return $this->exec($query,null,$d);
 		}
 		/**
+		 * @name search
+		 * @abstract busca dados do banco de dados com uma query montada de acordo com os valores dos atributos da classe
+		 * 
+		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+		 * @since  08/02/2011 08:57:00
+		 * @final  09/03/2011 16:53:59
+		 * @subpackage cmdb
+		 * @version 1.0
+		 * @access public
+		 */
+		public function search($d=false)
+		{
+		    $fields=$this->get_fields();
+		    $data=array();
+		    $data2=array();
+		    $values=array();
+		    foreach($fields as $k=>$v)
+		    {
+		    	if(!empty($this->values[$k]))
+		    	{
+		    		$value=($this->values[$k]==NULL?NULL:$this->values[$k]);
+					$values[$k]=$value;
+					$data[":".$k]=$values[$k];
+					$data2[]=$v."=:".$k;
+		    	}
+		    }
+		    $query='SELECT '.(empty($fields)?'*':implode(",",$fields)).' FROM '.$this->table;
+		    $query.=empty($fields)?'':' WHERE '.implode(" AND ",$data2);
+		    return $this->exec($query,$data,$d);
+		}
+		/**
 		 * @name update
 		 * @abstract altera dados do banco de dados com uma query montada de acordo com os valores contidos no atributo query da classe
 		 * 
@@ -749,7 +780,6 @@ require_once("database.php");
 		 */
 		protected function exec($query,$data=null,$d=false)
 		{
-		    
 		    $bd=new database();
 		    $bd=$bd->getconection();
 		    $stmt=$bd->prepare($query);
