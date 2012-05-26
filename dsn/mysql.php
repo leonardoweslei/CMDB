@@ -1,6 +1,10 @@
 <?
 class database_mysql extends PDO
 {
+	function __construct($db=false,$host="localhost",$user,$passwd)
+	{
+		parent::__construct("mysql:host={$host};".(!empty($db)?"dbname=".$db:''), $user, $passwd);
+	}
 	function database_info()
 	{
 		$stmt			= $this->prepare("SHOW TABLES");
