@@ -60,18 +60,7 @@ class database
 		{
 			require_once(dirname(__FILE__)."/dsn/{$this->dsn}.php");
 			$dsn="database_{$this->dsn}";
-			return new $dsn
-			(
-			$this->dsn.
-			":host=".$this->host.
-			(
-			(isset($this->dbname)&&!empty($this->dbname))?
-			";dbname=".$this->dbname:
-								''
-			),
-			$this->user,
-			$this->passwd
-			);
+			return new $dsn($this->dbname, $this->host, $this->user, $this->passwd);
 		}
 		else
 		{
