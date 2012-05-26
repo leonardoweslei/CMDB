@@ -94,10 +94,10 @@ class database_mysql extends PDO
 	 {
 		$query				= "
 				SELECT
-					ref.TABLE_NAME table_o,
-					ref.COLUMN_NAME field_o,
-					ref.REFERENCED_TABLE_NAME table_r,
-					ref.REFERENCED_COLUMN_NAME field_r
+					ref.TABLE_NAME table_local,
+					ref.COLUMN_NAME field_local,
+					ref.REFERENCED_TABLE_NAME table_remote,
+					ref.REFERENCED_COLUMN_NAME field_remote
 				FROM
 					information_schema.KEY_COLUMN_USAGE as ref
 				WHERE
@@ -140,10 +140,10 @@ class database_mysql extends PDO
 		}
 		$query				= "
 				SELECT
-					ref.TABLE_NAME table_o,
-					ref.COLUMN_NAME field_o,
-					ref.REFERENCED_TABLE_NAME table_r,
-					ref.REFERENCED_COLUMN_NAME field_r
+					ref.TABLE_NAME table_local,
+					ref.COLUMN_NAME field_local,
+					ref.REFERENCED_TABLE_NAME table_remote,
+					ref.REFERENCED_COLUMN_NAME field_remote
 				FROM
 					information_schema.KEY_COLUMN_USAGE as ref
 				WHERE
