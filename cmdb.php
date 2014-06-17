@@ -790,10 +790,8 @@ require_once("gen_class.php");
 			$bd=new database();
 			$bd=$bd->getconection();
 			$stmt=$bd->prepare($query);
-			$this->error=$stmt->execute($data);
-			//var_dump($query);
+			$this->error=($stmt?$stmt->execute($data):false);
 			$this->error=$this->error==false?true:false;
-			//var_dump($this->error);
 			if($this->error==false)
 			{
 				$stmt2=$stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -802,13 +800,16 @@ require_once("gen_class.php");
 			else
 			{
 				$this->result=array();
-				$error=$stmt->errorInfo();
+				$error=$stmt?$stmt->errorInfo():"Erro desconhecido";
 				$this->error_code=$error[1];
 				$this->error_desc=$error[2];
 			}
 			if($d)
 			{
-				pr($stmt->errorInfo());
+				if($this->error)
+				{
+					print_r($this->error_code.":".$this->error_desc);
+				}
 				print_r($query);
 				print_r($stmt);
 				print_r($data);
