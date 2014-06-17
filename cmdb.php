@@ -138,7 +138,7 @@ require_once("gen_class.php");
 		 */
 		public function get($p)
 		{
-			return isset($this->values[$p])?$this->values[$p]:false;
+			return stripslashes(isset($this->values[$p])?$this->values[$p]:false);
 		}
 		/**
 		 * @name set 
