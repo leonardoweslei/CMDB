@@ -1,4 +1,4 @@
-Classe para manipular banco de dados MySQL usando Interface fluente e PDO
+Componente para manipular banco de dados MySQL usando Interface fluente e PDO
 Tratamento de possiveis métodos para atributos/campos:
 *igual a...............(atributo+"_"+eq)
 *não igual a...........(atributo+"_"+ne)
@@ -20,6 +20,6 @@ Métodos do mysql
 *replace
 *delete
 *update
-
+Atenção: Componente em desenvolvimento, considere usar componentes mais maduros como os itens abaixo:
 http://www.hufersil.com.br/lumine
 https://github.com/vrana/notorm
