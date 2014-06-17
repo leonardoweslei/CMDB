@@ -1,4 +1,4 @@
-<?
+<?php
 class database_mysql extends PDO
 {
 	function __construct($db=false,$host="localhost",$user,$passwd)

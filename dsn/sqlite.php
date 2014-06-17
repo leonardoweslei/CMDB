@@ -1,4 +1,4 @@
-<?
+<?php
 class database_sqlite extends PDO
 {
 	function __construct($db)
