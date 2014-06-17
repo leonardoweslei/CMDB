@@ -1,6 +1,5 @@
 <?php
 require_once("database.php");
-require_once("gen_class.php");
    /**
 	 * classe cmdb
 	 * Classe manipuladora de banco de dados
