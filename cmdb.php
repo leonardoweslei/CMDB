@@ -55,6 +55,7 @@ require_once("gen_class.php");
 			'query'=>array(),
 			'limit'=>""
 		);
+		private $cmdb_last_id=false;
 		/**
 		 * A variável $result guarda os dados do resultado da última query executada
 		 *
@@ -268,13 +269,11 @@ require_once("gen_class.php");
 			}
 			elseif($this->attr_fetch($method)==$method && count($arguments)==1)
 			{
-				array_unshift($arguments,$method);
-				return call_user_func_array(array($this, "set"), $arguments);
+				return $this->set($method,array_shift($arguments));
 			}
 			elseif($this->attr_fetch($method)==$method && count($arguments)==0)
 			{
-				array_unshift($arguments,$method);
-				return call_user_func_array(array($this, "get"), $arguments);
+				return $this->get($method);
 			}
 			elseif(substr_count($method,"_")>0)
 			{
@@ -434,6 +433,21 @@ require_once("gen_class.php");
 				$tmp[$k]=$v;
 			}
 			return $tmp;
+		}
+		/**
+		 * @name get_table_query
+		 * @abstract retorna os valores contidos na posição 'table' do atributo query da classe
+		 * 
+		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+		 * @since  14/09/2011 08:57:00
+		 * @final  14/09/2011 16:53:59
+		 * @subpackage cmdb
+		 * @version 1.0
+		 * @access public
+		 */
+		public function get_table_query()
+		{
+			return (is_array($this->query['table'])?implode(" ", $this->query['table']):$this->query['table']);
 		}
 		/**
 		 * @name __set_data_query
@@ -796,6 +810,9 @@ require_once("gen_class.php");
 			{
 				$stmt2=$stmt->fetchAll(PDO::FETCH_ASSOC);
 				$this->result=$stmt2;
+				if($bd->lastInsertId()){
+					$this->cmdb_last_id=$bd->lastInsertId();
+				}
 			}
 			else
 			{
@@ -806,10 +823,7 @@ require_once("gen_class.php");
 			}
 			if($d)
 			{
-				if($this->error)
-				{
-					print_r($this->error_code.":".$this->error_desc);
-				}
+				print_r($this->error_code.":".$this->error_desc);
 				print_r($query);
 				print_r($stmt);
 				print_r($data);
@@ -866,7 +880,8 @@ require_once("gen_class.php");
 			$tmp=array();
 			foreach($this->result as $un)
 			{
-				$temp=new $this->table;
+				$temp=get_class($this);
+				$temp=new $temp;
 				$temp->extract($un);
 				if($persistence)
 				{
@@ -937,4 +952,25 @@ require_once("gen_class.php");
 		{
 			return $this->get_values();
 		}
+		/**
+		 * @name get_result
+		 * @abstract retorna o valor da variavel result
+		 * 
+		 * @author Leonardo Weslei Diniz <leonardoweslei@gmail.com>
+		 * @since  05/10/2012
+		 * @final  05/10/2012
+		 * @subpackage cmdb
+		 * @version 1.0
+		 * @access public
+		 */
+		public function get_result()
+		{
+			return $this->result;
+		}
+
+		public function get_last_id()
+		{
+			return $this->cmdb_last_id;
+		}
+
 	} // fim da classe cmdb
